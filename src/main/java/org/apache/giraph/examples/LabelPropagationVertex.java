@@ -189,35 +189,6 @@ public class LabelPropagationVertex extends
         		//voteToHalt(); // !!!
         	}
         }
-        /*
-        FloatWritable[] fws = new FloatWritable[10];
-        fws[0].set(1.0F);
-        FloatArrayWritable faw = new FloatArrayWritable();
-        faw.set(fws);
-
-        double minDist = isSource() ? 0d : Double.MAX_VALUE;
-        while (msgIterator.hasNext()) {
-            minDist = Math.min(minDist, msgIterator.next().get());
-        }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Vertex " + getVertexId() + " got minDist = " + minDist +
-                     " vertex value = " + getVertexValue());
-        }
-        if (minDist < getVertexValue().get()) {
-            setVertexValue(new DoubleWritable(minDist));
-            for (LongWritable targetVertexId : this) {
-                FloatWritable edgeValue = getEdgeValue(targetVertexId);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Vertex " + getVertexId() + " sent to " +
-                              targetVertexId + " = " +
-                              (minDist + edgeValue.get()));
-                }
-                sendMsg(targetVertexId,
-                        new DoubleWritable(minDist + edgeValue.get()));
-            }
-        }
-        */
-        // voteToHalt();
     }
 
     /**
