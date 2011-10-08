@@ -85,7 +85,10 @@ public class LabelPropagationVertex extends
     public void compute(Iterator<DoubleWritable> msgIterator) {
         LOG.warn("MaxIter: " + getContext().getConfiguration().getLong(MAX_SUPERSTEP, 10));
         Long maxIteration = getContext().getConfiguration().getLong(MAX_SUPERSTEP, 10);
-        if (getSuperstep() == 0) {
+        if (getSuperstep() / 3 == maxIteration) {
+        	voteToHalt();
+        }
+        if (getSuperstep() % 3 == 0) {
         	LOG.warn(getVertexId().get());
         	DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
         	int label = (int) labels[0].get();
@@ -102,7 +105,11 @@ public class LabelPropagationVertex extends
         	DoubleArrayWritable daw = new DoubleArrayWritable();
         	daw.set(dws);
         	setVertexValue(daw);
-        	voteToHalt();
+        	voteToHalt(); // !!!
+        } else if (getSuperstep() % 3 == 1) {
+        	
+        } else if (getSuperstep() % 3 == 2) {
+        	
         }
         /*
         FloatWritable[] fws = new FloatWritable[10];
