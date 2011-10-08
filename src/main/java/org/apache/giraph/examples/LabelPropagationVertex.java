@@ -38,6 +38,11 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -321,6 +326,65 @@ public class LabelPropagationVertex extends
 
     @Override
     public int run(String[] argArray) throws Exception {
+    	Options options = new Options();
+    	options.addOption("h", "help", false, "Help");
+    	options.addOption("v", "verbose", false, "Verbose");
+    	options.addOption("w", "workers", true, "Number of workers");
+    	options.addOption("s", "supersteps", true, "Supersteps to execute before");
+    	options.addOption("l", "labels", true, "Number of labels");
+    	options.addOption("i", "input", true, "Input");
+    	options.addOption("o", "output", true, "Output");
+    	HelpFormatter formatter = new HelpFormatter();
+    	if (argArray.length == 0) {
+    		formatter.printHelp(getClass().getName(), options, true);
+    		return 0;
+    	}
+    	CommandLineParser parser = new PosixParser();
+    	CommandLine cmd = parser.parse(options, argArray);
+    	if (cmd.hasOption('h')) {
+    		formatter.printHelp(getClass().getName(), options, true);
+    		return 0;
+    	}
+    	if (!cmd.hasOption('w')) {
+    		System.out.println("Need to choose the number of workers");
+    		return -1;
+    	}
+    	if (!cmd.hasOption('s')) {
+    		System.out.println("Need to set the number of supersteps");
+    		return -1;
+    	}
+    	if (!cmd.hasOption('l')) {
+    		System.out.println("Need to set the number of class labels");
+    		return -1;
+    	}
+    	if (!cmd.hasOption('i')) {
+    		System.out.println("Need to choose the input");
+    		return -1;
+    	}
+    	if (!cmd.hasOption('o')) {
+    		System.out.println("Neeed to choose the output");
+    		return -1;
+    	}
+    	int workers = Integer.parseInt(cmd.getOptionValue('w'));
+    	GiraphJob job = new GiraphJob(getConf(), getClass().getName());
+    	job.setVertexClass(getClass());
+        job.setVertexInputFormatClass(
+            LabelPropagationVertexInputFormat.class);
+        job.setVertexOutputFormatClass(
+            LabelPropagationVertexOutputFormat.class);
+        FileInputFormat.addInputPath(job, new Path(cmd.getOptionValue('i')));
+        FileOutputFormat.setOutputPath(job, new Path(cmd.getOptionValue('o')));
+        job.getConfiguration().setLong(LabelPropagationVertex.MAX_SUPERSTEP,
+        								Long.parseLong(cmd.getOptionValue('s')));
+        job.getConfiguration().setLong(LabelPropagationVertex.MAX_LABELINDEX,
+				Long.parseLong(cmd.getOptionValue('l')));
+        job.setWorkerConfiguration(workers, workers, 100.0f);
+        if (job.run(true) == true) {
+        	return 0;
+        } else {
+        	return 1;
+        }
+    	/*
         if (argArray.length != 6) {
             throw new IllegalArgumentException(
                 "run: Must have 6 arguments <input path> <output path> " +
@@ -348,6 +412,7 @@ public class LabelPropagationVertex extends
         } else {
             return -1;
         }
+        */
     }
 
     public static void main(String[] args) throws Exception {
