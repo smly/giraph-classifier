@@ -93,22 +93,12 @@ public class LabelPropagationVertex extends
         	LOG.warn("LABEL: " + labels[0]);
         	DoubleWritable[] dws = new DoubleWritable[(int) maxLabelIndex() + 1];
         	dws[0] = new DoubleWritable(labels[0].get());
-        	/*
-        	int maxFValIndex = 0;
-        	double maxFVal = 0.0;
         	for (int i = 1; i <= maxLabelIndex(); ++i) {
-        		if (maxFVal < labels[i].get()) {
-        			maxFVal = labels[i].get();
-        			maxFValIndex = i;
-        		}
-        	}
-        	dws[0] = new DoubleWritable((double)maxFValIndex);
-        	*/
-        	for (int i = 1; i <= maxLabelIndex(); ++i) {
+        		double val = labels[i].get();
         		if (label > 0) {
         			dws[i] = new DoubleWritable(label == i ? 1.0 : 0.0);
         		} else {
-       				dws[i] = new DoubleWritable(labels[i].get());
+       				dws[i] = new DoubleWritable(val);
         		}
         	}
         	DoubleArrayWritable daw = new DoubleArrayWritable();
