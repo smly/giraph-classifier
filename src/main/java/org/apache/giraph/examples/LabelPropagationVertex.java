@@ -52,9 +52,6 @@ import org.apache.giraph.examples.DoubleArrayWritable;
 import java.io.IOException;
 import java.util.Iterator;
 
-/**
- * Demonstrates the basic Pregel shortest paths implementation.
- */
 public class LabelPropagationVertex extends
         Vertex<LongWritable, DoubleArrayWritable, FloatWritable, DoubleArrayWritable>
         implements Tool {
@@ -63,23 +60,8 @@ public class LabelPropagationVertex extends
     /** Class logger */
     private static final Logger LOG =
         Logger.getLogger(LabelPropagationVertex.class);
-    /** The shortest paths id */
-    public static String SOURCE_ID = "LabelPropagationVertex.sourceId";
     public static String MAX_SUPERSTEP = "LabelPropagationVertex.maxSuperstep";
     public static String MAX_LABELINDEX = "LabelPropagationVertex.maxLabelindex";
-    /** Default shortest paths id */
-    public static long SOURCE_ID_DEFAULT = 1;
-
-    /**
-     * Is this vertex the source id?
-     *
-     * @return True if the source id
-     */
-    private boolean isSource() {
-        return (getVertexId().get() ==
-            getContext().getConfiguration().getLong(SOURCE_ID,
-                                                    SOURCE_ID_DEFAULT));
-    }
 
     private long maxLabelIndex() {
     	return getContext().getConfiguration().getLong(MAX_LABELINDEX, 2);
@@ -196,9 +178,6 @@ public class LabelPropagationVertex extends
         }
     }
 
-    /**
-     * VertexInputFormat that supports {@link LabelPropagationVertex}
-     */
     public static class LabelPropagationVertexInputFormat extends
             TextVertexInputFormat<LongWritable, DoubleArrayWritable, FloatWritable> {
         @Override
@@ -211,17 +190,6 @@ public class LabelPropagationVertex extends
         }
     }
 
-    /**
-     * VertexReader that supports {@link LabelPropagationVertex}.  In this
-     * case, the edge values are not used.  The files should be in the
-     * following JSON format:
-     * JSONArray(<vertex id>, <vertex value>,
-     *           JSONArray(JSONArray(<dest vertex id>, <edge value>), ...))
-     * Here is an example with vertex id 1, vertex value 4.3, and two edges.
-     * First edge has a destination vertex 2, edge value 2.1.
-     * Second edge has a destination vertex 3, edge value 0.7.
-     * [1,4.3,[[2,2.1],[3,0.7]]]
-     */
     public static class LabelPropagationVertexReader extends
             TextVertexReader<LongWritable, DoubleArrayWritable, FloatWritable> {
 
@@ -263,9 +231,6 @@ public class LabelPropagationVertex extends
         }
     }
 
-    /**
-     * VertexOutputFormat that supports {@link LabelPropagationVertex}
-     */
     public static class LabelPropagationVertexOutputFormat extends
             TextVertexOutputFormat<LongWritable, DoubleArrayWritable,
             FloatWritable> {
@@ -280,9 +245,6 @@ public class LabelPropagationVertex extends
         }
     }
 
-    /**
-     * VertexWriter that supports {@link LabelPropagationVertex}
-     */
     public static class LabelPropagationVertexWriter extends
             TextVertexWriter<LongWritable, DoubleArrayWritable, FloatWritable> {
         public LabelPropagationVertexWriter(
@@ -384,35 +346,6 @@ public class LabelPropagationVertex extends
         } else {
         	return 1;
         }
-    	/*
-        if (argArray.length != 6) {
-            throw new IllegalArgumentException(
-                "run: Must have 6 arguments <input path> <output path> " +
-                "<source vertex id> <# of workers> <# of supersteps> <# of label>");
-        }
-        GiraphJob job = new GiraphJob(getConf(), getClass().getName());
-        job.setVertexClass(getClass());
-        job.setVertexInputFormatClass(
-            LabelPropagationVertexInputFormat.class);
-        job.setVertexOutputFormatClass(
-            LabelPropagationVertexOutputFormat.class);
-        FileInputFormat.addInputPath(job, new Path(argArray[0]));
-        FileOutputFormat.setOutputPath(job, new Path(argArray[1]));
-        job.getConfiguration().setLong(LabelPropagationVertex.SOURCE_ID,
-                                       Long.parseLong(argArray[2]));
-        job.getConfiguration().setLong(LabelPropagationVertex.MAX_SUPERSTEP,
-        								Long.parseLong(argArray[4]));
-        job.getConfiguration().setLong(LabelPropagationVertex.MAX_LABELINDEX,
-        								Long.parseLong(argArray[5]));
-        job.setWorkerConfiguration(Integer.parseInt(argArray[3]),
-                                   Integer.parseInt(argArray[3]),
-                                   100.0f);
-        if (job.run(true) == true) {
-            return 0;
-        } else {
-            return -1;
-        }
-        */
     }
 
     public static void main(String[] args) throws Exception {
