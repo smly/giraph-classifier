@@ -1,10 +1,11 @@
 # java-Giraph-LabelPropagation
 
-An implementation of label propagation (GFHF, [Zhu and Ghahramani, 2002]) with Apache Giraph.
+The label propagation algorithm is one of the most basic semi-supervised model.
+This is an implementation of the algorithm (GFHF, [Zhu and Ghahramani, 2002]) with Apache Giraph.
 
 ## Usage
 
-Merged into examples directiory.
+Merge src/**/*.java into examples directiory.
 
     $ mvn copile && mvn package
 
