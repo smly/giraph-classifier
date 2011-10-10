@@ -46,7 +46,7 @@ Merge src/**/*.java into examples directiory.
     [8,["0.0","0.17647057705942323","0.8235293931382544"],[[4,1],[9,1]]]
     [9,["2.0","0.0","1.0"],[[8,1]]]
 
-## Format
+## input format
 
 [VertexID, ClassLabel (0 = unlabeled), Adjacencies]
 
@@ -66,6 +66,27 @@ Vertex 2 is labeled as '1'.
 Vertex 7 and 9 are labeled as '2'.
 Consecutive numbers must be assigned to vertices as labels.
 The largest number of label must be given as parameter with '-l' option.
+
+## output format
+
+[VertexId,[ClassLabel (input),Function F(l)...],Adjacency]
+
+    0$ hadoop fs -get output .
+    0$ cat output/part-m-00001 
+    [1,["0.0","0.8705882278435371","0.12941175353001144"],[[2,1],[3,1]]]
+    [2,["1.0","1.0","0.0"],[[1,1],[3,1]]]
+    [3,["0.0","0.7411764594123644","0.2588235107853132"],[[1,1],[2,1],[4,1]]]
+    [4,["0.0","0.352941161569427","0.6470588011776699"],[[3,1],[5,1],[8,1]]]
+    [5,["0.0","0.14117645941236442","0.858823510785313"],[[4,1],[6,1],[7,1]]]
+    [6,["2.0","0.0","1.0"],[[5,1],[7,1]]]
+    [7,["0.0","0.07058822784353705","0.9294117535300114"],[[5,1],[6,1]]]
+    [8,["0.0","0.17647057705942323","0.8235293931382544"],[[4,1],[9,1]]]
+    [9,["2.0","0.0","1.0"],[[8,1]]]
+
+The result describes f_{l=1}(v_1) = 0.87, f_{l=2}(v_1) = 0.13, and argmax_l f_l(v_1) = 1.
+So vertex 1 has been assigned the label of '1'.
+In the same way, vertex 3 has been assigned the label of '1'
+and vertices 4,5,7 and 8 have been assigned the label of '2'.
 
 ## References
 
