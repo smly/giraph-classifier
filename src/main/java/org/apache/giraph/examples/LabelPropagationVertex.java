@@ -69,100 +69,99 @@ public class LabelPropagationVertex extends
     
     @Override
     public void compute(Iterator<DoubleArrayWritable> msgIterator) {
-    	if (getSuperstep() == 0) {
-    		LOG.debug("MaxIter: " + getContext().getConfiguration().getLong(MAX_SUPERSTEP, 10));
-    	}
+        if (getSuperstep() == 0) {
+            LOG.debug("MaxIter: " + getContext().getConfiguration().getLong(MAX_SUPERSTEP, 10));
+        }
         Long maxIteration = getContext().getConfiguration().getLong(MAX_SUPERSTEP, 10);
         if (getSuperstep() / 3 == maxIteration) {
-        	DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
-        	int label = (int) labels[0].get();
-        	DoubleWritable[] dws = new DoubleWritable[(int) maxLabelIndex() + 1];
-        	dws[0] = new DoubleWritable(labels[0].get());
-        	for (int i = 1; i <= maxLabelIndex(); ++i) {
-        		double val = labels[i].get();
-        		if (label > 0) {
-        			dws[i] = new DoubleWritable(label == i ? 1.0 : 0.0);
-        		} else {
-       				dws[i] = new DoubleWritable(val);
-        		}
-        	}
-        	DoubleArrayWritable daw = new DoubleArrayWritable();
-        	daw.set(dws);
-        	setVertexValue(daw);
-        	voteToHalt();
+            DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
+            int label = (int) labels[0].get();
+            DoubleWritable[] dws = new DoubleWritable[(int) maxLabelIndex() + 1];
+            dws[0] = new DoubleWritable(labels[0].get());
+            for (int i = 1; i <= maxLabelIndex(); ++i) {
+                double val = labels[i].get();
+                if (label > 0) {
+                    dws[i] = new DoubleWritable(label == i ? 1.0 : 0.0);
+                } else {
+                    dws[i] = new DoubleWritable(val);
+                }
+            }
+            DoubleArrayWritable daw = new DoubleArrayWritable();
+            daw.set(dws);
+            setVertexValue(daw);
+            voteToHalt();
         }
         if (getSuperstep() % 3 == 0) {
-        	DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
-        	int label = (int) labels[0].get();
-        	DoubleWritable[] dws = new DoubleWritable[(int) maxLabelIndex() + 1];
-        	dws[0] = new DoubleWritable(label);
-        	for (int i = 1; i <= maxLabelIndex(); ++i) {
-        		if (label > 0) {
-        			dws[i] = new DoubleWritable(label == i ? 1.0 : 0.0);
-        		} else {
-        			if (getSuperstep() == 0) {
-        				dws[i] = new DoubleWritable(0.0);
-        			} else {
-        				dws[i] = new DoubleWritable(labels[i].get());
-        			}
-        		}
-        	}
-        	DoubleArrayWritable daw = new DoubleArrayWritable();
-        	daw.set(dws);
-        	setVertexValue(daw);
+            DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
+            int label = (int) labels[0].get();
+            DoubleWritable[] dws = new DoubleWritable[(int) maxLabelIndex() + 1];
+            dws[0] = new DoubleWritable(label);
+            for (int i = 1; i <= maxLabelIndex(); ++i) {
+                if (label > 0) {
+                    dws[i] = new DoubleWritable(label == i ? 1.0 : 0.0);
+                } else {
+                    if (getSuperstep() == 0) {
+                        dws[i] = new DoubleWritable(0.0);
+                    } else {
+                        dws[i] = new DoubleWritable(labels[i].get());
+                    }
+                }
+            }
+            DoubleArrayWritable daw = new DoubleArrayWritable();
+            daw.set(dws);
+            setVertexValue(daw);
         } else if (getSuperstep() % 3 == 1) {
-        	Double vals = 0.0;
-        	DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
-        	for (int i = 1; i <= maxLabelIndex(); ++i) {
-        		vals += labels[i].get();
-        	}
-        	if (vals > 0.0) {
-        		for (LongWritable targetVertexId : this) {
-        			FloatWritable edgeValue = getEdgeValue(targetVertexId);
-        			DoubleArrayWritable daw = new DoubleArrayWritable();
-        			DoubleWritable[] dws = new DoubleWritable[(int) maxLabelIndex() + 1];
-        			dws[0] = new DoubleWritable(0.0); // dummy
-        			for (int i = 1; i <= maxLabelIndex(); ++i) {
-        				dws[i] = new DoubleWritable(labels[i].get() * edgeValue.get());
-        			}
-        			daw.set(dws);
-        			sendMsg(targetVertexId, daw);
-        		}
-        	}
+            Double vals = 0.0;
+            DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
+            for (int i = 1; i <= maxLabelIndex(); ++i) {
+                vals += labels[i].get();
+            }
+            if (vals > 0.0) {
+                for (LongWritable targetVertexId : this) {
+                    FloatWritable edgeValue = getEdgeValue(targetVertexId);
+                    DoubleArrayWritable daw = new DoubleArrayWritable();
+                    DoubleWritable[] dws = new DoubleWritable[(int) maxLabelIndex() + 1];
+                    dws[0] = new DoubleWritable(0.0); // dummy
+                    for (int i = 1; i <= maxLabelIndex(); ++i) {
+                        dws[i] = new DoubleWritable(labels[i].get() * edgeValue.get());
+                    }
+                    daw.set(dws);
+                    sendMsg(targetVertexId, daw);
+                }
+            }
         } else if (getSuperstep() % 3 == 2) {
-        	// vertexDegree should be included in vertexValue....
-        	double deg = 0.0;
-        	for (LongWritable targetVertexId : this) {
-        		FloatWritable edgeValue = getEdgeValue(targetVertexId);
-        		deg += edgeValue.get();
-        	}
-        	DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
-        	Double[] vals = new Double[(int)maxLabelIndex() + 1];
-        	vals[0] = labels[0].get();
-        	for (int i = 0; i <= maxLabelIndex(); ++i) {
-        		//vals[i] = labels[i].get();
-        		if (i == 0) {
-        			vals[i] = labels[i].get();
-        		} else {
-        			vals[i] = 0.0;
-        		}
-        	}
-        	while (msgIterator.hasNext()) {
-        		DoubleArrayWritable recvMsg = msgIterator.next();
-        		DoubleWritable[] dws = (DoubleWritable[]) recvMsg.get();
-        		for (int i = 1; i <= maxLabelIndex(); ++i) {
-        			vals[i] += dws[i].get() / deg;
-        		}
-        		// LOG.debug("Updated: " + getVertexId() + " value as ["+vals[0]+","+vals[1]+","+vals[2]+"]");
-        		
-        	}
-        	for (int i = 0; i <= maxLabelIndex(); ++i) {
-        		labels[i] = new DoubleWritable(vals[i]);
-        	}
-        	DoubleArrayWritable daw = new DoubleArrayWritable();
-        	daw.set(labels);
-        	// LOG.debug("Set: " + getVertexId() + " value as ["+labels[0]+","+labels[1]+","+labels[2]+"]");
-        	setVertexValue(daw);
+            // vertexDegree should be included in vertexValue....
+            double deg = 0.0;
+            for (LongWritable targetVertexId : this) {
+                FloatWritable edgeValue = getEdgeValue(targetVertexId);
+                deg += edgeValue.get();
+            }
+            DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
+            Double[] vals = new Double[(int)maxLabelIndex() + 1];
+            vals[0] = labels[0].get();
+            for (int i = 0; i <= maxLabelIndex(); ++i) {
+                //vals[i] = labels[i].get();
+                if (i == 0) {
+                    vals[i] = labels[i].get();
+                } else {
+                    vals[i] = 0.0;
+                }
+            }
+            while (msgIterator.hasNext()) {
+                DoubleArrayWritable recvMsg = msgIterator.next();
+                DoubleWritable[] dws = (DoubleWritable[]) recvMsg.get();
+                for (int i = 1; i <= maxLabelIndex(); ++i) {
+                    vals[i] += dws[i].get() / deg;
+                }
+                // LOG.debug("Updated: " + getVertexId() + " value as ["+vals[0]+","+vals[1]+","+vals[2]+"]");
+            }
+            for (int i = 0; i <= maxLabelIndex(); ++i) {
+                labels[i] = new DoubleWritable(vals[i]);
+            }
+            DoubleArrayWritable daw = new DoubleArrayWritable();
+            daw.set(labels);
+            // LOG.debug("Set: " + getVertexId() + " value as ["+labels[0]+","+labels[1]+","+labels[2]+"]");
+            setVertexValue(daw);
         }
     }
 
@@ -276,48 +275,48 @@ public class LabelPropagationVertex extends
 
     @Override
     public int run(String[] argArray) throws Exception {
-    	Options options = new Options();
-    	options.addOption("h", "help", false, "Help");
-    	options.addOption("v", "verbose", false, "Verbose");
-    	options.addOption("w", "workers", true, "Number of workers");
-    	options.addOption("s", "supersteps", true, "Supersteps to execute before");
-    	options.addOption("l", "labels", true, "Number of labels");
-    	options.addOption("i", "input", true, "Input");
-    	options.addOption("o", "output", true, "Output");
-    	HelpFormatter formatter = new HelpFormatter();
-    	if (argArray.length == 0) {
-    		formatter.printHelp(getClass().getName(), options, true);
-    		return 0;
-    	}
-    	CommandLineParser parser = new PosixParser();
-    	CommandLine cmd = parser.parse(options, argArray);
-    	if (cmd.hasOption('h')) {
-    		formatter.printHelp(getClass().getName(), options, true);
-    		return 0;
-    	}
-    	if (!cmd.hasOption('w')) {
-    		System.out.println("Need to choose the number of workers");
-    		return -1;
-    	}
-    	if (!cmd.hasOption('s')) {
-    		System.out.println("Need to set the number of supersteps");
-    		return -1;
-    	}
-    	if (!cmd.hasOption('l')) {
-    		System.out.println("Need to set the number of class labels");
-    		return -1;
-    	}
-    	if (!cmd.hasOption('i')) {
-    		System.out.println("Need to choose the input");
-    		return -1;
-    	}
-    	if (!cmd.hasOption('o')) {
-    		System.out.println("Neeed to choose the output");
-    		return -1;
-    	}
-    	int workers = Integer.parseInt(cmd.getOptionValue('w'));
-    	GiraphJob job = new GiraphJob(getConf(), getClass().getName());
-    	job.setVertexClass(getClass());
+        Options options = new Options();
+        options.addOption("h", "help", false, "Help");
+        options.addOption("v", "verbose", false, "Verbose");
+        options.addOption("w", "workers", true, "Number of workers");
+        options.addOption("s", "supersteps", true, "Supersteps to execute before");
+        options.addOption("l", "labels", true, "Number of labels");
+        options.addOption("i", "input", true, "Input");
+        options.addOption("o", "output", true, "Output");
+        HelpFormatter formatter = new HelpFormatter();
+        if (argArray.length == 0) {
+            formatter.printHelp(getClass().getName(), options, true);
+            return 0;
+        }
+        CommandLineParser parser = new PosixParser();
+        CommandLine cmd = parser.parse(options, argArray);
+        if (cmd.hasOption('h')) {
+            formatter.printHelp(getClass().getName(), options, true);
+            return 0;
+        }
+        if (!cmd.hasOption('w')) {
+            System.out.println("Need to choose the number of workers");
+            return -1;
+        }
+        if (!cmd.hasOption('s')) {
+            System.out.println("Need to set the number of supersteps");
+            return -1;
+        }
+        if (!cmd.hasOption('l')) {
+            System.out.println("Need to set the number of class labels");
+            return -1;
+        }
+        if (!cmd.hasOption('i')) {
+            System.out.println("Need to choose the input");
+            return -1;
+        }
+        if (!cmd.hasOption('o')) {
+            System.out.println("Neeed to choose the output");
+            return -1;
+        }
+        int workers = Integer.parseInt(cmd.getOptionValue('w'));
+        GiraphJob job = new GiraphJob(getConf(), getClass().getName());
+        job.setVertexClass(getClass());
         job.setVertexInputFormatClass(
             LabelPropagationVertexInputFormat.class);
         job.setVertexOutputFormatClass(
@@ -325,14 +324,14 @@ public class LabelPropagationVertex extends
         FileInputFormat.addInputPath(job, new Path(cmd.getOptionValue('i')));
         FileOutputFormat.setOutputPath(job, new Path(cmd.getOptionValue('o')));
         job.getConfiguration().setLong(LabelPropagationVertex.MAX_SUPERSTEP,
-        								Long.parseLong(cmd.getOptionValue('s')));
+                                        Long.parseLong(cmd.getOptionValue('s')));
         job.getConfiguration().setLong(LabelPropagationVertex.MAX_LABELINDEX,
-				Long.parseLong(cmd.getOptionValue('l')));
+                                        Long.parseLong(cmd.getOptionValue('l')));
         job.setWorkerConfiguration(workers, workers, 100.0f);
         if (job.run(true) == true) {
-        	return 0;
+            return 0;
         } else {
-        	return 1;
+            return 1;
         }
     }
 
