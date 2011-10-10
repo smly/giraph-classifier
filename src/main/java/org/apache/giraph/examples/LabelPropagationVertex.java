@@ -70,14 +70,12 @@ public class LabelPropagationVertex extends
     @Override
     public void compute(Iterator<DoubleArrayWritable> msgIterator) {
     	if (getSuperstep() == 0) {
-    		LOG.warn("MaxIter: " + getContext().getConfiguration().getLong(MAX_SUPERSTEP, 10));
+    		LOG.debug("MaxIter: " + getContext().getConfiguration().getLong(MAX_SUPERSTEP, 10));
     	}
         Long maxIteration = getContext().getConfiguration().getLong(MAX_SUPERSTEP, 10);
         if (getSuperstep() / 3 == maxIteration) {
-        	LOG.warn(getVertexId().get());
         	DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
         	int label = (int) labels[0].get();
-        	LOG.warn("LABEL: " + labels[0]);
         	DoubleWritable[] dws = new DoubleWritable[(int) maxLabelIndex() + 1];
         	dws[0] = new DoubleWritable(labels[0].get());
         	for (int i = 1; i <= maxLabelIndex(); ++i) {
@@ -94,11 +92,8 @@ public class LabelPropagationVertex extends
         	voteToHalt();
         }
         if (getSuperstep() % 3 == 0) {
-        	
-        	LOG.warn(getVertexId().get());
         	DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
         	int label = (int) labels[0].get();
-        	LOG.warn("LABEL: " + labels[0]);
         	DoubleWritable[] dws = new DoubleWritable[(int) maxLabelIndex() + 1];
         	dws[0] = new DoubleWritable(label);
         	for (int i = 1; i <= maxLabelIndex(); ++i) {
@@ -116,7 +111,6 @@ public class LabelPropagationVertex extends
         	daw.set(dws);
         	setVertexValue(daw);
         } else if (getSuperstep() % 3 == 1) {
-        	LOG.info("SENDER: " + getVertexId());
         	Double vals = 0.0;
         	DoubleWritable[] labels = (DoubleWritable[]) getVertexValue().get();
         	for (int i = 1; i <= maxLabelIndex(); ++i) {
@@ -125,8 +119,6 @@ public class LabelPropagationVertex extends
         	if (vals > 0.0) {
         		for (LongWritable targetVertexId : this) {
         			FloatWritable edgeValue = getEdgeValue(targetVertexId);
-        			LOG.info("Vertex " + getVertexId() + " sent to " +
-        					targetVertexId + "...");
         			DoubleArrayWritable daw = new DoubleArrayWritable();
         			DoubleWritable[] dws = new DoubleWritable[(int) maxLabelIndex() + 1];
         			dws[0] = new DoubleWritable(0.0); // dummy
@@ -158,11 +150,10 @@ public class LabelPropagationVertex extends
         	while (msgIterator.hasNext()) {
         		DoubleArrayWritable recvMsg = msgIterator.next();
         		DoubleWritable[] dws = (DoubleWritable[]) recvMsg.get();
-        		LOG.info("STEP3 => " + getVertexId() + " reqv msg!");
         		for (int i = 1; i <= maxLabelIndex(); ++i) {
         			vals[i] += dws[i].get() / deg;
         		}
-        		LOG.info("Updated: " + getVertexId() + " value as ["+vals[0]+","+vals[1]+","+vals[2]+"]");
+        		// LOG.debug("Updated: " + getVertexId() + " value as ["+vals[0]+","+vals[1]+","+vals[2]+"]");
         		
         	}
         	for (int i = 0; i <= maxLabelIndex(); ++i) {
@@ -170,11 +161,8 @@ public class LabelPropagationVertex extends
         	}
         	DoubleArrayWritable daw = new DoubleArrayWritable();
         	daw.set(labels);
-        	LOG.info("Set: " + getVertexId() + " value as ["+labels[0]+","+labels[1]+","+labels[2]+"]");
+        	// LOG.debug("Set: " + getVertexId() + " value as ["+labels[0]+","+labels[1]+","+labels[2]+"]");
         	setVertexValue(daw);
-        	if (labels[0].get() < 1.0) {
-        		//voteToHalt(); // !!!
-        	}
         }
     }
 
