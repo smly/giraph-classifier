@@ -18,6 +18,8 @@
 
 package org.apache.giraph.classifier.lp;
 
+import org.apache.giraph.classifier.DoubleArrayWritable;
+import org.apache.giraph.classifier.MulticlassClassifierWritable;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.BooleanWritable;
 import org.apache.hadoop.io.DoubleWritable;
@@ -26,10 +28,10 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.log4j.Logger;
 import java.util.Iterator;
 
-public class GRF extends
+public class GFHF extends
         Vertex<LongWritable, MulticlassClassifierWritable, DoubleWritable, DoubleArrayWritable> {
     /** Class logger */
-    private static final Logger LOG = Logger.getLogger(GRF.class);
+    private static final Logger LOG = Logger.getLogger(GFHF.class);
 
     @Override
     public void compute(Iterator<DoubleArrayWritable> msgIterator) {

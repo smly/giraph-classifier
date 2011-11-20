@@ -1,4 +1,4 @@
-package org.apache.giraph.classifier.lp;
+package org.apache.giraph.classifier;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -7,7 +7,7 @@ import org.apache.hadoop.io.BooleanWritable;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Writable;
-import org.apache.giraph.classifier.lp.DoubleArrayWritable;
+import org.apache.giraph.classifier.DoubleArrayWritable;
 
 public final class MulticlassClassifierWritable implements Writable {
     private BooleanWritable isLabeledData;

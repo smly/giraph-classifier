@@ -1,4 +1,4 @@
-package org.apache.giraph.classifier.lp;
+package org.apache.giraph.classifier;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one

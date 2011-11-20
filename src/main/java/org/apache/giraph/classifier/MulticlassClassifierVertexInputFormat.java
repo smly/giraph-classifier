@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.giraph.classifier.lp;
+package org.apache.giraph.classifier;
 
 import org.apache.giraph.lib.*;
 import org.apache.giraph.graph.Edge;

@@ -1,4 +1,4 @@
-package org.apache.giraph.classifier.lp;
+package org.apache.giraph.classifier;
 
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.DoubleWritable;
