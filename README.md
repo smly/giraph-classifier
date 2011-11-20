@@ -1,7 +1,12 @@
 # java-Giraph-LabelPropagation
 
+[(Switch to develop branch)][1]
+
 The label propagation algorithm is one of the most basic semi-supervised model.
 This is an implementation of the algorithm (GFHF, [Zhu and Ghahramani, 2002]) in Apache Giraph.
+
+
+[1]: https://github.com/smly/java-Giraph-LabelPropagation/tree/classify "giraph.classifier @ GitHub"
 
 ## Usage
 
