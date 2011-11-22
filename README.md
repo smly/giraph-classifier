@@ -7,4 +7,4 @@ contains
 - org.apache.giraph.classifier.MulticlassClassifierArgmaxVertexOutputFormat
 - org.apache.giraph.classifier.MulticlassClassifierWritable
 
-and others.
+and others. (not completed yet).
