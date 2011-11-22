@@ -35,12 +35,8 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * InputFormat for reading graphs stored as (ordered) adjacency lists
- * with the vertex ids longs and the vertex values and edges doubles.
  * For example:
- * 22 0.1 45 0.3 99 0.44
- * to repesent a vertex with id 22, value of 0.1 and edges to nodes 45 and 99,
- * with values of 0.3 and 0.44, respectively.
+ * "22\t[1.0, 0.0]\t45\t0.3\t99\t0.44"
  */
 public class MulticlassClassifierVertexInputFormat<M extends Writable> extends
     TextVertexInputFormat<LongWritable, MulticlassClassifierWritable, DoubleWritable, M>  {
