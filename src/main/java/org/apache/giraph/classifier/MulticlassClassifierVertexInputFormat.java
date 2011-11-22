@@ -17,6 +17,8 @@
  */
 package org.apache.giraph.classifier;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.apache.giraph.lib.*;
 import org.apache.giraph.graph.Edge;
 import org.apache.hadoop.io.BooleanWritable;
@@ -30,6 +32,7 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * InputFormat for reading graphs stored as (ordered) adjacency lists
@@ -61,11 +64,30 @@ public class MulticlassClassifierVertexInputFormat<M extends Writable> extends
 
     @Override
     public void decodeValue(String s, MulticlassClassifierWritable value) {
-        DoubleArrayWritable daw = new DoubleArrayWritable();
-        DoubleWritable dws[] = new DoubleWritable[1];
-        dws[0] = new DoubleWritable(Double.valueOf(s));
-        daw.set(dws);
-        value.set(new BooleanWritable(false), new IntWritable(1), daw);
+        DoubleArrayWritable daw   = new DoubleArrayWritable();
+        BooleanWritable isLabeled = new BooleanWritable(false);
+        
+        Double argmaxFval = 0.0;
+        Integer argmax    = 0;
+        try {
+            JSONArray jsonFvals = new JSONArray(s);
+            
+            DoubleWritable dws[] = new DoubleWritable[jsonFvals.length()];
+            for (int i = 0; i < jsonFvals.length(); ++i) {
+                Double fval = jsonFvals.getDouble(i);   
+                if (fval > argmaxFval) {
+                    argmaxFval = fval;
+                    argmax     = i;
+                    isLabeled  = new BooleanWritable(true);
+                }
+                dws[i] = new DoubleWritable(fval);
+            }
+            daw.set(dws);
+        } catch (JSONException e) {
+            throw new IllegalArgumentException(
+                "DoubleArrayWritable.toString: Couldn't decode label information", e);
+        }
+        value.set(isLabeled, new IntWritable(argmax), daw);
     }
 
     @Override

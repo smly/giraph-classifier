@@ -52,16 +52,22 @@ public final class MulticlassClassifierWritable implements Writable {
     }
     
     public String toString() {
-        StringBuffer sb = new StringBuffer("{");
+        StringBuffer sb = new StringBuffer("{ ");
         /* Labeled: L, Unlabled: U*/
-        sb.append(isLabeledData.get() ? "L" : "U").append(", ");
-        sb.append("argMax: " + this.argMax().toString()).append(", ");
-        sb.append(fValues.toString()).append(" }");
+        sb.append("label: " + (isLabeledData.get() ? "L" : "U")).append(", ");
+        sb.append("argmax: " + this.argMax().toString()).append(", ");
+        sb.append("fval: " + fValues.toString()).append(" }");
         return sb.toString();
     }
     
     public Integer getClassLabelIndex() {
         return classLabelIndex.get();
+    }
+    
+    public void setCurrentValue(Integer index, Double val) {
+        Writable values[] = this.fValues.get();
+        values[index] = new DoubleWritable(val);
+        this.fValues.set(values);
     }
     
     public Double getCurrentValue(Integer index) {

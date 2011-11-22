@@ -35,14 +35,18 @@ public class GFHF extends
 
     @Override
     public void compute(Iterator<DoubleArrayWritable> msgIterator) {
+        /* TODO: implement GFHF */
         if (getSuperstep() == 0) {
-            LOG.debug("HOGE~");
+            MulticlassClassifierWritable vertexValue = getVertexValue();
+            vertexValue.setCurrentValue(0, Double.MAX_VALUE);
+            /*
             DoubleWritable[] dws = new DoubleWritable[1];
             DoubleArrayWritable daw = new DoubleArrayWritable();
             dws[0] = new DoubleWritable(Double.MAX_VALUE);
             daw.set(dws);
             setVertexValue(new MulticlassClassifierWritable(
                     new BooleanWritable(false), new IntWritable(1), daw));
+            */
         }
         voteToHalt();
     }
