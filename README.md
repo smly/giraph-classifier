@@ -41,3 +41,5 @@ and others. (not completed yet).
     8       { label: U, argmax: 0, fval: [ 0.9411497677073759, 0.05881971471449907 ] }
     9       { label: L, argmax: 1, fval: [ 0.0, 1.0 ] }
 
+
+![graph7](http://github.com/smly/label-propagation/raw/master/dat/ss.png)
