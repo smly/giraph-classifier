@@ -69,7 +69,7 @@ public class GFHF extends
             Integer argMaxIndex = vertexValue.argMax();
             if (vertexValue.getCurrentValue(argMaxIndex) > 0.0) {
                 for (LongWritable targetVertexId : this) {
-                    final int elemSize = vertexValue.getCurrentValues().toStrings().length;
+                    final int elemSize = vertexValue.getClassLabelIndexSize();
                     DoubleWritable fvals[] = (DoubleWritable[]) vertexValue.getCurrentValues().toArray();
                     DoubleWritable edgeWeight = getEdgeValue(targetVertexId);
                     DoubleWritable msg[] = new DoubleWritable[elemSize];
