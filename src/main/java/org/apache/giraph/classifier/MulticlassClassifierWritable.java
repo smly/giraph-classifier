@@ -3,6 +3,8 @@ package org.apache.giraph.classifier;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Iterator;
+
 import org.apache.hadoop.io.BooleanWritable;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
@@ -35,6 +37,14 @@ public final class MulticlassClassifierWritable implements Writable {
         this.isLabeledData = isLabeled;
         this.classLabelIndex = classLabelIndex;
         this.fValues = fValues;
+    }
+    
+    public boolean isLabeled() {
+        return this.isLabeledData.get();
+    }
+    
+    public Integer getClassLabelIndexSize() {
+        return fValues.get().length;
     }
     
     public Integer argMax() {
@@ -98,5 +108,13 @@ public final class MulticlassClassifierWritable implements Writable {
         isLabeledData.write(out);
         classLabelIndex.write(out);
         fValues.write(out);
+    }
+
+    public void initializeFValue() {
+        DoubleWritable[] values = (DoubleWritable[]) fValues.get();
+        for (int i = 0; i < values.length; ++i) {
+            values[i] = new DoubleWritable(0.0);
+        }
+        fValues.set(values);
     }
 }

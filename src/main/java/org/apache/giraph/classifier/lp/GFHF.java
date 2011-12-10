@@ -32,22 +32,82 @@ public class GFHF extends
         Vertex<LongWritable, MulticlassClassifierWritable, DoubleWritable, DoubleArrayWritable> {
     /** Class logger */
     private static final Logger LOG = Logger.getLogger(GFHF.class);
-
+    public static String MAX_SUPERSTEP = "GFHF.maxSuperstep";
+    
+    private long getMaxSuperstep() {
+        return getContext().getConfiguration().getLong(MAX_SUPERSTEP, 10);
+    }
+    
+    private void initialLabeling() {
+        MulticlassClassifierWritable vertexValue = getVertexValue();
+        /* initial labeling */
+        Integer argMaxIndex = vertexValue.argMax();
+        if (vertexValue.isLabeled()) {
+            for (int i = 0; i < vertexValue.getClassLabelIndexSize(); ++i) {
+                vertexValue.setCurrentValue(i, (argMaxIndex == i)? 1.0 : 0.0);
+            }
+        }
+    }
+    
     @Override
     public void compute(Iterator<DoubleArrayWritable> msgIterator) {
-        /* TODO: implement GFHF */
-        if (getSuperstep() == 0) {
-            MulticlassClassifierWritable vertexValue = getVertexValue();
-            vertexValue.setCurrentValue(0, Double.MAX_VALUE);
-            /*
-            DoubleWritable[] dws = new DoubleWritable[1];
-            DoubleArrayWritable daw = new DoubleArrayWritable();
-            dws[0] = new DoubleWritable(Double.MAX_VALUE);
-            daw.set(dws);
-            setVertexValue(new MulticlassClassifierWritable(
-                    new BooleanWritable(false), new IntWritable(1), daw));
-            */
+        MulticlassClassifierWritable vertexValue = getVertexValue();
+        
+        Long maxIteration     = getMaxSuperstep();
+        Long currentIteration = getSuperstep();
+        /* TODO: iterate until convergence to labels (MulticlassClassifierWritable.fValue) */
+        if (currentIteration / 3 == maxIteration) {
+            voteToHalt();
+            return;
         }
-        voteToHalt();
+        
+        switch (currentIteration.intValue() % 3) {
+        case 0:
+            initialLabeling();
+            break;
+        case 1:
+            Integer argMaxIndex = vertexValue.argMax();
+            if (vertexValue.getCurrentValue(argMaxIndex) > 0.0) {
+                for (LongWritable targetVertexId : this) {
+                    final int elemSize = vertexValue.getCurrentValues().toStrings().length;
+                    DoubleWritable fvals[] = (DoubleWritable[]) vertexValue.getCurrentValues().toArray();
+                    DoubleWritable edgeWeight = getEdgeValue(targetVertexId);
+                    DoubleWritable msg[] = new DoubleWritable[elemSize];
+                    for (int i = 0; i < elemSize; ++i) {
+                        msg[i] = new DoubleWritable(fvals[i].get() * edgeWeight.get());
+                    }
+                    DoubleArrayWritable daw = new DoubleArrayWritable();
+                    daw.set(msg);
+                    sendMsg(targetVertexId, daw);
+                }
+            }
+            break;
+        case 2:
+            Double norm = 0.0;
+            for (LongWritable targetVertexId : this) {
+                DoubleWritable edgeValue = this.getEdgeValue(targetVertexId);
+                norm += edgeValue.get();
+            }
+            /* initialize fValue */
+            vertexValue.initializeFValue();
+            Double tempVals[] = new Double[vertexValue.getClassLabelIndexSize()];
+            for (int i = 0; i < vertexValue.getClassLabelIndexSize(); ++i) {
+                tempVals[i] = 0.0;
+            }
+            /* receive messages and update fValues */
+            while (msgIterator.hasNext()) {
+                DoubleArrayWritable recvMsg = msgIterator.next();
+                int fValueIndex = 0;
+                for (Double fVal : recvMsg) {
+                    tempVals[fValueIndex++] += fVal / norm;
+                }
+            }
+            for (int i = 0; i < vertexValue.getClassLabelIndexSize(); ++i) {
+                vertexValue.setCurrentValue(i, tempVals[i]);
+            }
+            break;
+        default:
+            break;
+        }
     }
 }

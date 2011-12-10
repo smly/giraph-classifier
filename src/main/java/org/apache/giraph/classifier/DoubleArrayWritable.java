@@ -1,11 +1,13 @@
 package org.apache.giraph.classifier;
 
+import java.util.Iterator;
+
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.DoubleWritable;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-public class DoubleArrayWritable extends ArrayWritable {
+public class DoubleArrayWritable extends ArrayWritable implements Iterable<Double> {
     public DoubleArrayWritable() {
         super(DoubleWritable.class);
     }
@@ -32,5 +34,29 @@ public class DoubleArrayWritable extends ArrayWritable {
         }
         sb.append("]");
         return sb.toString();
+    }
+    
+    public String[] elems() {
+        return toStrings();
+    }
+    
+    @Override
+    public Iterator<Double> iterator() {
+        final String[] elems = elems();
+        return new Iterator<Double>() {
+            private int i = 0;
+            
+            public boolean hasNext() {
+                return i < elems.length;
+            }
+            
+            public Double next() {
+                return Double.valueOf(elems[i++]);
+            }
+            
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 }
